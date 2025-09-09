@@ -11,8 +11,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             throw new Exception("O nome do produto é obrigatório");
         }
         
-        if (empty($_POST['idTag'])) {
-            throw new Exception("A categoria é obrigatória");
+        if (empty($_POST['categorias']) || !is_array($_POST['categorias'])) {
+            throw new Exception("Selecione ao menos uma categoria/tag");
         }
         
         if (empty($_POST['idGenero'])) {
@@ -36,8 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             throw new Exception("Tipo de arquivo não suportado. Use apenas JPEG, PNG ou GIF.");
         }
         
-        // Verifica o tamanho da imagem (máximo 5MB)
-        $maxSize = 100 * 1024 * 1024; // 5MB
+        // Verifica o tamanho da imagem (máximo 100MB)
+        $maxSize = 100 * 1024 * 1024;
         if ($_FILES['imagemProd']['size'] > $maxSize) {
             throw new Exception("O tamanho da imagem não pode exceder 100MB.");
         }
@@ -47,7 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Prepara os dados
         $nomeProd = trim($_POST['nomeProd']);
-        $idTag = (int)$_POST['idTag'];
         $idMarca = !empty($_POST['idMarca']) ? (int)$_POST['idMarca'] : null;
         $idGenero = (int)$_POST['idGenero'];
         $descricaoProd = trim($_POST['descricaoProd']);
@@ -70,12 +69,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $tamanhoDisp = !empty($tamanhosSelecionados) ? implode(',', $tamanhosSelecionados) : '';
         $peso = !empty($_POST['peso']) ? trim($_POST['peso']) : '';
 
-        // Prepara e executa a query (agora incluindo a imagem)
+        // Prepara e executa a query (agora removendo idTag, pois será salvo na tabela de relacionamento)
         $sql = "INSERT INTO produto (
-            nomeProd, idTag, idMarca, idGenero, descricaoProd, 
+            nomeProd, idMarca, idGenero, descricaoProd, 
             valorProd, valorCusto, quantidade, cor, material, 
             tamanhoDisp, peso, imagemProd
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         $stmt = $conexao->prepare($sql);
         
@@ -83,22 +82,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             throw new Exception("Erro ao preparar a query: " . $conexao->error);
         }
         
-        // Note o 'b' no final para o parâmetro BLOB
         $null = null;
         $stmt->bind_param(
-            'siiisddissssb',
-            $nomeProd, $idTag, $idMarca, $idGenero, $descricaoProd,
+            'siisddissssb',
+            $nomeProd, $idMarca, $idGenero, $descricaoProd,
             $valorProd, $valorCusto, $quantidade, $cor, $material,
             $tamanhoDisp, $peso, $null
         );
 
-        $imagemNull = null; // uma variável para passar null no bind_param
-        
-        // Associa o parâmetro BLOB
-        $stmt->send_long_data(12, $imagemProd);
+        $stmt->send_long_data(11, $imagemProd);
         
         if ($stmt->execute()) {
             $idProduto = $conexao->insert_id;
+
+            // Salva as categorias/tags selecionadas na tabela de relacionamento
+            $categorias = $_POST['categorias'];
+            $stmtCat = $conexao->prepare("INSERT INTO produto_categoria (produto_id, categoria_id, nome_categoria) VALUES (?, ?, ?)");
+
+            foreach ($categorias as $categoria_id) {
+                $categoria_id = (int)$categoria_id;
+
+                // Buscar o nome da categoria pelo ID
+                $stmtNome = $conexao->prepare("SELECT tag FROM tag WHERE idTag = ?");
+                $stmtNome->bind_param('i', $categoria_id);
+                $stmtNome->execute();
+                $stmtNome->bind_result($nome_categoria);
+                $stmtNome->fetch();
+                $stmtNome->close();
+
+                $stmtCat->bind_param('iis', $idProduto, $categoria_id, $nome_categoria);
+                $stmtCat->execute();
+            }
+            $stmtCat->close();
+
             header('Location: cadastroProduto.php?status=success&id=' . $idProduto);
             exit();
         } else {

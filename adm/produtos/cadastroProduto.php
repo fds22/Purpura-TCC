@@ -129,25 +129,21 @@ if(!isset($_SESSION['adm_id'])) {
                                            placeholder="Ex: Vestido Púrpura Elegance">
                                 </div>
                                 <div class="form-group">
-                                    <label for="product-category">Categoria *</label>
-                                    <select id="product-category" name="idTag" required>
+                                    <label for="product-category">Categoria/Tags *</label>
+                                    <select id="product-category" name="categorias[]" multiple required style="height: 120px;">
                                         <option value="" select disabled>Selecione uma categoria</option>
                                         <?php
                                         // CONEXAO COM O BANCO PARA BUSCAR AS CATEGORIAS
                                         require_once '../../data/conexao.php';
                                         $conexao = conectarBanco();
-                                        $sql = "SELECT idTag, tag FROM tag ORDER BY tag";
-                                        $resultado = $conexao->query($sql);
-                                        
-                                        if ($resultado->num_rows > 0) {
-                                            while($row = $resultado->fetch_assoc()) {
-                                                echo '<option value="' . htmlspecialchars($row['idTag']) . '">' 
-                                                    . htmlspecialchars($row['tag']) . '</option>';
-                                            }
+                                        $result = mysqli_query($conexao, "SELECT idTag, tag FROM tag");
+                                        while ($row = mysqli_fetch_assoc($result)) {
+                                            echo "<option value='{$row['idTag']}'>{$row['tag']}</option>";
                                         }
                                         $conexao->close();
                                         ?>
                                     </select>
+                                    <small>Segure Ctrl (Windows) ou Command (Mac) para selecionar mais de uma.</small>
                                 </div>
                                 <div class="form-group">
                                     <label for="product-brand">Marca</label>
