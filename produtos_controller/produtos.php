@@ -118,12 +118,10 @@ $dadosProdutos = getProdutos($conexao, $paginaAtual);
                     foreach ($dadosProdutos['produtos'] as $produto) {
                         echo '<div class="product-card">';
                         echo '<div class="product-image">';
-                        if (!empty($produto['imgProd'])) {
-                            echo '<img src="produtos_controller/img/' . htmlspecialchars($produto['imgProd']) . '" alt="' . htmlspecialchars($produto['nomeProd']) . '">';
-                        } elseif (!empty($produto['imagemProd'])) {
+                        if (!empty($produto['imagemProd'])) {
                             echo '<img src="data:image/jpeg;base64,' . base64_encode($produto['imagemProd']) . '" alt="' . htmlspecialchars($produto['nomeProd']) . '">';
                         } else {
-                            echo '<img src="../html/css/img/fachada.jpeg" alt="Sem imagem">';
+                            echo '<img src="../html/css/img/semImagem.jpeg" alt="Falha ao carregar imagem">';
                         }
                         echo '</div>';
                         echo '<div class="product-info">';
