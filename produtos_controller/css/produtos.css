@@ -35,11 +35,30 @@
 
 /* * Filtros */
 .filtro-busca {
-    background-color: var(--white);
-    padding: 25px;
-    border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    height: fit-content;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(126,87,194,0.07);
+    padding: 18px 18px 6px 18px;
+    margin-bottom: 32px;
+}
+
+.filtro-busca label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 14px;
+}
+
+.filtro-busca input[type="text"],
+.filtro-busca input[type="number"],
+.filtro-busca select {
+    font-size: 15px;
+    transition: border 0.2s;
+}
+
+.filtro-busca input:focus,
+.filtro-busca select:focus {
+    border: 1.5px solid #7e57c2;
+    outline: none;
 }
 
 .search-bar {
@@ -120,8 +139,31 @@
     font-size: 0.85rem;
 }
 
+
 .filtro-preco {
     margin-bottom: 25px;
+}
+
+.filtro-preco-label {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #7e57c2;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.preco-inputs-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.preco-inputs-row input[type="number"] {
+    width: 90px;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 15px;
 }
 
 .preco-slider {
@@ -207,8 +249,35 @@
     border-color: var(--roxo-escuro);
 }
 
-/* * Grid de produtos */
-/* Estilos para a paginação */
+/* * Tags */
+
+.product-tags {
+    margin-bottom: 8px;
+}
+.product-tag {
+    display: inline-block;
+    background: #e1d7f6;
+    color: #7e57c2;
+    font-size: 13px;
+    padding: 2px 10px;
+    border-radius: 12px;
+    margin-right: 4px;
+    margin-bottom: 2px;
+}
+
+.product-tag {
+    display: inline-block;
+    background: #e1d7f6;
+    color: #7e57c2;
+    font-size: 13px;
+    padding: 2px 10px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    margin-top: 4px;
+}
+
+/* *Estilos para a paginação */
+
 .paginacao-container {
     display: flex;
     justify-content: center;

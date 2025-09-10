@@ -1,0 +1,22 @@
+======== NOVO ENVIO ========
+POST:
+Array
+(
+    [nomeEnd] => Trabalho
+    [cep] => 13735-035
+    [rua] => Rua Coronel José Pereira
+    [numero] => 305
+    [complemento] => Casa
+    [bairro] => Descanso
+    [cidade] => Mococa
+    [estado] => SP
+)
+SESSION:
+Array
+(
+    [adm_id] => 1
+    [adm_nome] => adm
+    [usuario_id] => 1
+    [usuario_nome] => Gabriel
+)
+SUCESSO: Endereço cadastrado.

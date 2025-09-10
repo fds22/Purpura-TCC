@@ -6,7 +6,7 @@ require_once '../data/conexao.php';
 $conexao = conectarBanco();
 
 // Configuração da paginação
-$paginaAtual = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
+$paginaAtual = isset($_GET['pagina']) && $_GET['pagina'] > 0 ? (int)$_GET['pagina'] : 1;
 $dadosProdutos = getProdutos($conexao, $paginaAtual);
 ?>
 <!DOCTYPE html>
@@ -22,57 +22,6 @@ $dadosProdutos = getProdutos($conexao, $paginaAtual);
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     <script src="produto.js"></script>
-    <style>
-        /* Estilos para a paginação */
-        .paginacao-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 30px;
-            gap: 10px;
-        }
-
-        .pagina-link {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #f8f8f8;
-            color: #333;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border: 1px solid #eee;
-        }
-
-        .pagina-link:hover {
-            background-color: #7e57c2;
-            color: white;
-        }
-
-        .pagina-link.active {
-            background-color: #7e57c2;
-            color: white;
-        }
-
-        .pagina-link.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .loading, .error {
-            text-align: center;
-            padding: 40px;
-            font-size: 18px;
-            color: #7e57c2;
-        }
-
-        .error {
-            color: #e74c3c;
-        }
-    </style>
 </head>
 <body>
     <header>
@@ -114,49 +63,41 @@ $dadosProdutos = getProdutos($conexao, $paginaAtual);
 
     <section class="produtos-container" id="produtos-container">
         <div class="filtro-busca">
-            <div class="search-bar">
-                <input type="text" placeholder="Buscar produtos...">
-                <button type="submit"><i class="fas fa-search"></i></button>
-            </div>
-            
-            <div class="filtros">
-                <h3>Filtrar por categoria</h3>
-                <div class="filtro-opcoes">
-                    <label class="filtro-item">
-                        <input type="checkbox" name="categoria" value="camisas">
-                        <span class="filtro-nome">Camisas</span>
-                        <span class="filtro-count">(24)</span>
-                    </label>
-                    <label class="filtro-item">
-                        <input type="checkbox" name="categoria" value="calcas">
-                        <span class="filtro-nome">Calças</span>
-                        <span class="filtro-count">(18)</span>
-                    </label>
-                    <label class="filtro-item">
-                        <input type="checkbox" name="categoria" value="tenis">
-                        <span class="filtro-nome">Tênis</span>
-                        <span class="filtro-count">(12)</span>
-                    </label>
-                </div>
-                
-                <h3>Filtrar por preço</h3>
-                <div class="filtro-preco">
-                    <input type="range" min="0" max="500" value="500" class="preco-slider" id="preco-max">
-                    <div class="preco-range">
-                        <span>R$ 0</span>
-                        <span id="preco-valor">R$ 500</span>
-                    </div>
-                </div>
-                
-                <h3>Ordenar por</h3>
-                <select class="ordenar-select">
-                    <option value="relevancia">Relevância</option>
-                    <option value="menor-preco">Menor preço</option>
-                    <option value="maior-preco">Maior preço</option>
-                    <option value="novidades">Novidades</option>
-                </select>
-
-                <button class="btn-primary filtrar-btn">Aplicar Filtros</button>
+                    <form method="get" class="filtro-busca" style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 24px;">
+                        <div style="flex: 1; min-width: 180px;">
+                            <label for="nome_produto" style="font-weight: bold; color: #7e57c2;">Nome do produto</label>
+                            <input type="text" id="nome_produto" name="nome_produto" placeholder="Ex: Camiseta" value="<?= htmlspecialchars($_GET['nome_produto'] ?? '') ?>" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ccc;">
+                        </div>
+                        <div style="flex: 1; min-width: 140px;">
+                            <label for="marca" style="font-weight: bold; color: #7e57c2;">Marca</label>
+                            <input type="text" id="marca" name="marca" placeholder="Ex: Nike" value="<?= htmlspecialchars($_GET['marca'] ?? '') ?>" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ccc;">
+                        </div>
+                        <div style="flex: 1; min-width: 140px;">
+                            <label for="categoria" style="font-weight: bold; color: #7e57c2;">Categoria</label>
+                            <input type="text" id="categoria" name="categoria" placeholder="Ex: Tênis" value="<?= htmlspecialchars($_GET['categoria'] ?? '') ?>" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #ccc;">
+                        </div>
+                        <div>
+                            <label for="preco_min" style="font-weight: bold; color: #7e57c2;">Preço mín.</label>
+                            <input type="number" id="preco_min" name="preco_min" step="0.01" min="0" placeholder="R$" value="<?= htmlspecialchars($_GET['preco_min'] ?? '') ?>" style="width: 90px; padding: 8px; border-radius: 8px; border: 1px solid #ccc;">
+                        </div>
+                        <div>
+                            <label for="preco_max" style="font-weight: bold; color: #7e57c2;">Preço máx.</label>
+                            <input type="number" id="preco_max" name="preco_max" step="0.01" min="0" placeholder="R$" value="<?= htmlspecialchars($_GET['preco_max'] ?? '') ?>" style="width: 90px; padding: 8px; border-radius: 8px; border: 1px solid #ccc;">
+                        </div>
+                        <div>
+                            <label for="ordenar" style="font-weight: bold; color: #7e57c2;">Ordenar</label>
+                            <select id="ordenar" name="ordenar" style="padding: 8px; border-radius: 8px; border: 1px solid #ccc;">
+                                <option value="">Ordenar por</option>
+                                <option value="menor-preco" <?= (($_GET['ordenar'] ?? '') == 'menor-preco') ? 'selected' : '' ?>>Menor preço</option>
+                                <option value="maior-preco" <?= (($_GET['ordenar'] ?? '') == 'maior-preco') ? 'selected' : '' ?>>Maior preço</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button type="submit" style="background: #7e57c2; color: #fff; border: none; border-radius: 8px; padding: 10px 18px; font-weight: bold; cursor: pointer;">
+                                <i class="fas fa-search"></i> Filtrar
+                            </button>
+                        </div>
+                    </form>
             </div>
         </div>
 
@@ -169,50 +110,37 @@ $dadosProdutos = getProdutos($conexao, $paginaAtual);
                 </div>
             </div>
             
-            <div class="produtos-grid" id="produtos-grid">
-                <?php foreach ($dadosProdutos['produtos'] as $produto): ?>
-                    <div class="product-card">
-
-                        <div class="product-image">
-                            <?php if (!empty($produto['imagemProd'])): ?>
-                                <img src="data:image/jpeg;base64,<?= base64_encode($produto['imagemProd']) ?>" alt="<?= htmlspecialchars($produto['nomeProd']) ?>">
-                            <?php else: ?>
-                                <img src="/api/placeholder/300/400" alt="<?= htmlspecialchars($produto['nomeProd']) ?>">
-                            <?php endif; ?>
-
-                            <div class="product-overlay">
-                                <a href="#" class="overlay-icon"><i class="fas fa-heart"></i></a>
-                                <a href="#" class="overlay-icon"><i class="fas fa-shopping-cart"></i></a>
-                                <a href="detalhes.php?id=<?= $produto['idProduto'] ?>" class="overlay-icon"><i class="fas fa-search"></i></a>
-                            </div>
-
-                            <?php 
-                                $randomTag = rand(1, 3);
-                                if ($randomTag == 1) {
-                                    echo '<span class="tag new">NOVO</span>';
-                                } elseif ($randomTag == 2) {
-                                    echo '<span class="tag sale">-'.rand(5, 30).'%</span>';
-                                }
-                            ?>
-
-                        </div>
-                        <div class="product-info">
-                            <h3><?= htmlspecialchars($produto['nomeProd']) ?></h3>
-                            <p class="product-category"><?= htmlspecialchars($produto['tag_nome']) ?></p>
-                            <p class="product-price"><?php 
-                                if (isset($randomTag) && $randomTag == 2) {
-                                    $desconto = rand(5, 30) / 100;
-                                    $precoOriginal = $produto['valorProd'];
-                                    $precoComDesconto = $precoOriginal * (1 - $desconto);
-                                    echo '<span class="old-price">R$ '.number_format($precoOriginal, 2, ',', '.').'</span> R$ '.number_format($precoComDesconto, 2, ',', '.');
-                                } else {
-                                    echo 'R$ '.number_format($produto['valorProd'], 2, ',', '.');
-                                }
-                                ?>
-                            </p>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
+        <div class="produtos-grid">
+                <?php
+                if (empty($dadosProdutos['produtos'])) {
+                    echo '<div class="sem-produtos">Nenhum produto encontrado.</div>';
+                } else {
+                    foreach ($dadosProdutos['produtos'] as $produto) {
+                        echo '<div class="product-card">';
+                        echo '<div class="product-image">';
+                        if (!empty($produto['imgProd'])) {
+                            echo '<img src="produtos_controller/img/' . htmlspecialchars($produto['imgProd']) . '" alt="' . htmlspecialchars($produto['nomeProd']) . '">';
+                        } elseif (!empty($produto['imagemProd'])) {
+                            echo '<img src="data:image/jpeg;base64,' . base64_encode($produto['imagemProd']) . '" alt="' . htmlspecialchars($produto['nomeProd']) . '">';
+                        } else {
+                            echo '<img src="../html/css/img/fachada.jpeg" alt="Sem imagem">';
+                        }
+                        echo '</div>';
+                        echo '<div class="product-info">';
+                        echo '<h3>'.htmlspecialchars($produto['nomeProd']).'</h3>';
+                        if (!empty($produto['tag'])) {
+                            echo '<div class="product-tags">';
+                            foreach ($produto['tag'] as $tag) {
+                                echo '<span class="product-tag">'.htmlspecialchars($tag).'</span>';
+                            }
+                            echo '</div>';
+                        }
+                        echo '<p class="product-price">R$ '.number_format($produto['valorProd'], 2, ',', '.').'</p>';
+                        echo '</div>';
+                        echo '</div>';
+                    }
+                }
+                ?>
             </div>
             
             <div class="paginacao" id="paginacao">
@@ -230,9 +158,22 @@ $dadosProdutos = getProdutos($conexao, $paginaAtual);
                         
                         <?php for ($i = 1; $i <= $dadosProdutos['totalPaginas']; $i++): ?>
                             <?php if ($i == $dadosProdutos['paginaAtual']): ?>
-                                <span class="pagina-link active"><?= $i ?></span>
+                                <span class="pagina-link active"><?php echo $i; ?></span>
                             <?php else: ?>
-                                <a href="?pagina=<?= $i ?>" class="pagina-link"><?= $i ?></a>
+                                <?php
+                                $active = '';
+                                $params = [
+                                    'pagina' => $i,
+                                    'nome_produto' => urlencode($_GET['nome_produto'] ?? ''),
+                                    'marca' => urlencode($_GET['marca'] ?? ''),
+                                    'categoria' => urlencode($_GET['categoria'] ?? ''),
+                                    'preco_min' => urlencode($_GET['preco_min'] ?? ''),
+                                    'preco_max' => urlencode($_GET['preco_max'] ?? ''),
+                                    'ordenar' => urlencode($_GET['ordenar'] ?? ''),
+                                ];
+                                $queryString = http_build_query($params);
+                                echo '<a href="?' . $queryString . '" class="pagina-link ' . $active . '">' . $i . '</a>';
+                                ?>
                             <?php endif; ?>
                         <?php endfor; ?>
                         
@@ -313,45 +254,5 @@ $dadosProdutos = getProdutos($conexao, $paginaAtual);
             <p>&copy; 2025 Púrpura - Todos os direitos reservados.</p>
         </div>
     </footer>
-    
-    <script>
-        // Navegação suave para a paginação
-        $(document).ready(function() {
-            $('.paginacao-container').on('click', '.pagina-link:not(.disabled, .active)', function(e) {
-                e.preventDefault();
-                const url = $(this).attr('href');
-                
-                if (url) {
-                    // Mostrar indicador de carregamento
-                    $('#produtos-grid').html('<div class="loading">Carregando produtos...</div>');
-                    
-                    // Fazer requisição AJAX para obter os produtos da página selecionada
-                    $.ajax({
-                        url: url,
-                        type: 'GET',
-                        success: function(data) {
-                            // Extrair apenas a seção de produtos do HTML retornado
-                            const produtosHtml = $(data).find('#produtos-grid').html();
-                            const paginacaoHtml = $(data).find('#paginacao').html();
-                            const contagemHtml = $(data).find('.resultados-header p').html();
-                            
-                            // Atualizar o conteúdo
-                            $('#produtos-grid').html(produtosHtml);
-                            $('#paginacao').html(paginacaoHtml);
-                            $('.resultados-header p').html(contagemHtml);
-                            
-                            // Rolagem suave para o topo dos produtos
-                            $('html, body').animate({
-                                scrollTop: $('.produtos-resultados').offset().top - 100
-                            }, 500);
-                        },
-                        error: function() {
-                            $('#produtos-grid').html('<div class="error">Erro ao carregar produtos.</div>');
-                        }
-                    });
-                }
-            });
-        });
-    </script>
 </body>
 </html>
